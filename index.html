@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Tender Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+        
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: #f8f9fa;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .nav-tab:hover {
+            background: #e9ecef;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            margin-left: 10px;
+        }
+        
+        .tender-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .tender-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .tender-details {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .bids-section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .bid-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .bid-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dealer-name {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .bid-amount {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .admin-table th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .admin-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .admin-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .admin-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease;
+            position: fixed; /* Make alerts fixed */
+            top: 20px; /* Position from top */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust for centering */
+            z-index: 1000; /* Ensure it's on top */
+            min-width: 300px; /* Minimum width */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .countdown {
+            font-weight: bold;
+            /* color: #e74c3c; */ /* Color will be set by JS */
+            font-size: 1.1em;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .container {
+                margin: 10px;
+                padding-top: 10px;
+            }
+            
+            .user-info {
+                position: static;
+                margin-top: 15px;
+                margin-bottom: 15px;
+                text-align: center;
+            }
+            .alert {
+                width: 90%; /* Full width on small screens */
+                top: 10px;
+            }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="auth-container">
+        <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">🏢 Welcome to Tender Platform</h2>
+        
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="showAuthTab('login', event)">Login</button>
+            <button class="auth-tab" onclick="showAuthTab('register', event)">Register</button>
+        </div>
+        
+        <!-- Login Form -->
+        <div id="loginFormSection">
+            <form id="loginFormEl">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Your password">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">🔐 Login</button>
+            </form>
+        </div>
+        
+        <!-- Register Form -->
+        <div id="registerFormSection" class="hidden">
+            <form id="registerFormEl">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="registerName" required placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="registerPassword" required placeholder="Minimum 6 characters">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">🚀 Create Account</button>
+            </form>
+        </div>
+        
+        <div id="authLoading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="container hidden">
+        <div class="header">
+            <h1>🏢 Tender Platform</h1>
+            <p>Real-time Bidding • Multi-user Platform • Powered by Firebase</p>
+            <div class="user-info">
+                👤 <span id="currentUserEmail"></span>
+                <button class="btn btn-secondary" onclick="logoutUser()" style="margin-left: 10px; padding: 5px 15px; font-size: 12px;">Logout</button>
+            </div>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab" onclick="showAppTab('adminPortal', event)" id="adminPortalNavTab">Admin Portal</button>
+            <button class="nav-tab" onclick="showAppTab('bidder', event)" id="bidderNavTab">Bidder Portal</button>
+        </div>
+
+        <div id="adminPortalAppTab" class="tab-content"> 
+            <section id="createTenderSection" style="margin-bottom: 40px;">
+                <h2 style="margin-bottom: 30px;">Create New Tender</h2>
+            <form id="tenderForm">
+                <div class="grid">
+                    <div>
+                        <div class="form-group">
+                            <label for="tenderTitle">Tender Title *</label>
+                            <input type="text" id="tenderTitle" required placeholder="e.g., Office Furniture Supply">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tenderDescription">Description *</label>
+                            <textarea id="tenderDescription" rows="4" required placeholder="Detailed requirements..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tenderDeadline">Bidding Deadline *</label>
+                            <input type="datetime-local" id="tenderDeadline" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label for="tenderCategory">Category *</label>
+                            <select id="tenderCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="construction">Construction</option>
+                                <option value="supplies">Supplies</option>
+                                <option value="services">Services</option>
+                                <option value="technology">Technology</option>
+                                <option value="transport">Transport</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="estimatedValue">Estimated Value (₹)</label>
+                            <input type="number" id="estimatedValue" placeholder="e.g., 50000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactDetails">Contact Details *</label>
+                            <input type="text" id="contactDetails" required placeholder="Phone/Email for communication">
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">🚀 Create Tender</button>
+            </form>
+            </section>
+
+            <hr style="margin-bottom: 40px;">
+
+            <!-- All Tender Details -->
+            <section id="viewAllTendersSection">
+                <h2 style="margin-bottom: 30px;">Admin Dashboard - All Tender Details</h2>
+                <div id="adminDataContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading admin data...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Bidder Portal -->
+        <div id="bidderAppTab" class="tab-content">
+            <h2 style="margin-bottom: 30px;">Active Tenders</h2>
+            <div id="activeTendersContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading active tenders...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="editTenderModal" class="auth-container hidden" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1001; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto;">
+            <h2 style="text-align:center; margin-bottom:20px;">Edit Tender</h2>
+            <form id="editTenderForm">
+                <input type="hidden" id="editTenderId">
+                <div class="grid">
+                    <div>
+                        <div class="form-group">
+                            <label for="editTenderTitle">Tender Title *</label>
+                            <input type="text" id="editTenderTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTenderDescription">Description *</label>
+                            <textarea id="editTenderDescription" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTenderDeadline">Bidding Deadline *</label>
+                            <input type="datetime-local" id="editTenderDeadline" required>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label for="editTenderCategory">Category *</label>
+                            <select id="editTenderCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="construction">Construction</option>
+                                <option value="supplies">Supplies</option>
+                                <option value="services">Services</option>
+                                <option value="technology">Technology</option>
+                                <option value="transport">Transport</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEstimatedValue">Estimated Value (₹)</label>
+                            <input type="number" id="editEstimatedValue">
+                        </div>
+                        <div class="form-group">
+                            <label for="editContactDetails">Contact Details *</label>
+                            <input type="text" id="editContactDetails" required>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <button type="submit" class="btn">💾 Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditTenderModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+        <div id="modalBackdrop" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;"></div>
+    </div>
+
+    <!-- Global Alert Placeholder -->
+    <div id="globalAlertPlaceholder"></div>
+
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- Your Firebase Config (from separate file) -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Global variables
+        let currentFirebaseUser = null;
+        let currentUserData = null; // To store user profile from Firestore
+        let activeListeners = []; // To manage Firestore listeners
+
+        // DOM Elements
+        const authScreen = document.getElementById('authScreen');
+        const mainAppScreen = document.getElementById('mainApp');
+        const currentUserEmailEl = document.getElementById('currentUserEmail');
+        const loginFormEl = document.getElementById('loginFormEl');
+        const registerFormEl = document.getElementById('registerFormEl');
+        const tenderFormEl = document.getElementById('tenderForm');
+        const authLoadingEl = document.getElementById('authLoading');
+
+        // --- Helper Functions ---
+        function showAlert(type, message, duration = 4000) {
+            const alertPlaceholder = document.getElementById('globalAlertPlaceholder');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            alertPlaceholder.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, duration);
+        }
+
+        function showAuthLoading(isLoading) {
+            authLoadingEl.classList.toggle('hidden', !isLoading);
+        }
+
+        function formatFirebaseTimestamp(timestamp) {
+            if (!timestamp) return 'N/A';
+            // Firestore timestamps can be directly converted to Date objects
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleString('en-IN', {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        function updateCountdown(element, deadlineString) {
+            const deadline = new Date(deadlineString);
+            const now = new Date();
+            const diff = deadline - now;
+
+            if (diff <= 0) {
+                element.textContent = `EXPIRED (${formatFirebaseTimestamp(deadline)})`;
+                element.style.color = '#e74c3c'; // Red for expired
+                return false; // Indicates expired
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            element.textContent = `${days}d ${hours}h ${minutes}m remaining (${formatFirebaseTimestamp(deadline)})`;
+            element.style.color = '#27ae60'; // Green for active
+            return true; // Indicates active
+        }
+
+        // --- Authentication ---
+        auth.onAuthStateChanged(async (user) => {
+            // Clean up any existing listeners first
+            activeListeners.forEach(unsubscribe => unsubscribe());
+            activeListeners = [];
+
+            if (user) {
+                currentFirebaseUser = user;
+                showAuthLoading(true);
+                try {
+
+                    let userDoc = await db.collection('users').doc(user.uid).get();
+
+                    // Check if this might be a new registration where doc might not be immediately available
+                    // This is a common pattern for new users where Firestore might have a slight propagation delay.
+                    if (!userDoc.exists && user.metadata.creationTime === user.metadata.lastSignInTime) {
+                        // This looks like a brand new user who just registered.
+                        // Give Firestore a very brief moment and try fetching again.
+                        showAlert('info', 'Finalizing account setup...', 2000); // Brief info
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+                        userDoc = await db.collection('users').doc(user.uid).get(); // Try fetching again
+                    }
+
+                    if (userDoc.exists) {
+                        currentUserData = { uid: user.uid, ...userDoc.data() };
+                        currentUserEmailEl.textContent = currentUserData.email;
+                        authScreen.classList.add('hidden');
+                        mainAppScreen.classList.remove('hidden');
+                        setupUIForUserRole();
+                    } else {
+                        showAlert('error', 'User profile not found. Please contact support.');
+                        auth.signOut(); // Log out if profile is missing
+                    }
+                } catch (error) {
+                    console.error("Error fetching user profile:", error);
+                    showAlert('error', "Could not load user profile.");
+                    auth.signOut();
+                }
+                showAuthLoading(false);
+            } else {
+                if (window.globalCountdownInterval) {
+                   clearInterval(window.globalCountdownInterval);
+                   window.globalCountdownInterval = null;
+               }
+                currentFirebaseUser = null;
+                currentUserData = null;
+                authScreen.classList.remove('hidden');
+                mainAppScreen.classList.add('hidden');
+                currentUserEmailEl.textContent = '';
+            }
+        });
+
+        function showAuthTab(tabName, event) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            if (event) event.currentTarget.classList.add('active');
+            
+            document.getElementById('loginFormSection').classList.toggle('hidden', tabName !== 'login');
+            document.getElementById('registerFormSection').classList.toggle('hidden', tabName !== 'register');
+        }
+        showAuthTab('login'); // Default to login tab
+
+        loginFormEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showAuthLoading(true);
+            try {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                await auth.signInWithEmailAndPassword(email, password);
+                // onAuthStateChanged will handle UI update
+            } catch (error) {
+                showAlert('error', 'Login failed: ' + error.message);
+            }
+            showAuthLoading(false);
+        });
+
+        registerFormEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showAuthLoading(true);
+            try {
+                const name = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                const newUserProfile = { // Prepare the profile data
+                    name: name,
+                    email: email,
+                    userType: 'bidder', 
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('users').doc(userCredential.user.uid).set(newUserProfile);
+
+                // onAuthStateChanged will handle UI update after successful registration and login
+            } catch (error) {
+                showAlert('error', 'Registration failed: ' + error.message);
+            }
+            showAuthLoading(false);
+        });
+
+        function logoutUser() {
+            auth.signOut();
+        }
+
+        // --- UI Setup & Navigation ---
+        function setupUIForUserRole() {
+            if (!currentUserData) return;
+
+            const { userType } = currentUserData;
+            const adminPortalTab = document.getElementById('adminPortalNavTab'); // New tab
+            const bidderTab = document.getElementById('bidderNavTab');
+
+            // Hide all tabs initially
+            [adminPortalTab, bidderTab].forEach(tab => tab.style.display = 'none');
+
+            if (userType === 'admin') {
+                adminPortalTab.style.display = 'flex';
+                showAppTab('adminPortal'); // Show the new combined admin portal
+            } else if (userType === 'bidder') {
+                bidderTab.style.display = 'flex';
+                showAppTab('bidder');
+            } else {
+                showAlert('error', `Unknown user type: ${userType}. Please contact support.`);
+                showAppTab(null); // Show no tabs
+            }
+        }
+        
+        function showAppTab(tabName, event) {
+            if (window.globalCountdownInterval) {
+                clearInterval(window.globalCountdownInterval);
+                window.globalCountdownInterval = null;
+            }
+            activeListeners.forEach(unsubscribe => unsubscribe());
+            activeListeners = [];
+
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+
+            if(tabName) {
+                document.getElementById(tabName + 'AppTab').classList.add('active');
+                if (event) {
+                    event.currentTarget.classList.add('active');
+                } else {
+                    const tabButton = document.getElementById(tabName + 'NavTab');
+                    if(tabButton) tabButton.classList.add('active');
+                }
+
+                if (tabName === 'adminPortal') { // When admin portal is shown
+                    loadAdminDashboardData(); // This loads both tender list and their bids for admin
+                    setTenderDeadlineMin();   // Ensure deadline input is set up for tender creation form
+                } else if (tabName === 'bidder') {
+                    loadActiveTendersForBidder();
+                }
+            }
+        }
+
+        // --- Tender Owner Functions ---
+        tenderFormEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentFirebaseUser || !currentUserData || currentUserData.userType !== 'admin') {
+                showAlert('error', 'You are not authorized to create tenders.');
+                return;
+            }
+            
+            try {
+                const tenderData = {
+                    title: document.getElementById('tenderTitle').value.trim(),
+                    description: document.getElementById('tenderDescription').value.trim(),
+                    deadline: document.getElementById('tenderDeadline').value, // Stored as string, Firestore can convert
+                    category: document.getElementById('tenderCategory').value,
+                    estimatedValue: document.getElementById('estimatedValue').value || '0',
+                    contactDetails: document.getElementById('contactDetails').value.trim(),
+                    ownerId: currentFirebaseUser.uid,
+                    ownerEmail: currentFirebaseUser.email, // Storing email for convenience
+                    ownerName: currentUserData.name, // Storing owner name from profile
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'active' // 'active', 'expired', 'closed'
+                };
+                
+                if (!tenderData.title || !tenderData.description || !tenderData.deadline || !tenderData.category || !tenderData.contactDetails) {
+                    throw new Error('Please fill in all required fields marked with *');
+                }
+                
+                if (new Date(tenderData.deadline) <= new Date()) {
+                    throw new Error('Deadline must be in the future');
+                }
+                
+                await db.collection('tenders').add(tenderData);
+                showAlert('success', 'Tender created successfully!');
+                tenderFormEl.reset();
+                setTenderDeadlineMin(); // Reset min date
+                
+            } catch (error) {
+                showAlert('error', 'Error creating tender: ' + error.message);
+            }
+        });
+
+        function setTenderDeadlineMin() {
+            const now = new Date();
+            const minDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+            document.getElementById('tenderDeadline').min = minDateTime;
+        }
+        setTenderDeadlineMin(); // Call on page load
+
+        // --- Bidder Functions ---
+        function loadActiveTendersForBidder() {
+            console.log("loadActiveTendersForBidder: Called");
+            const container = document.getElementById('activeTendersContainer');
+            
+            // Set initial loading message only if container is truly empty
+            if (container.innerHTML.trim() === '' || container.querySelector('.loading')) {
+                 container.innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading tenders...</p></div>`;
+            }
+
+            if (window.globalCountdownInterval) {
+                clearInterval(window.globalCountdownInterval);
+                window.globalCountdownInterval = null;
+            }   
+            
+            activeListeners.forEach(unsub => unsub());
+            activeListeners = [];
+            
+            const unsubscribe = db.collection('tenders')
+                .where('status', '==', 'active') // Still fetching initially active tenders
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    console.log("loadActiveTendersForBidder: onSnapshot. Empty:", snapshot.empty, "Size:", snapshot.size);
+                    
+                    const loadingDiv = container.querySelector('.loading');
+                    if (loadingDiv) loadingDiv.remove();
+
+                    const snapshotTenderIds = new Set();
+                    snapshot.forEach(doc => snapshotTenderIds.add(doc.id));
+
+                    // Remove cards from UI that are no longer in the snapshot (e.g., deleted or status changed by admin)
+                    const existingCards = container.querySelectorAll('.tender-card');
+                    existingCards.forEach(card => {
+                        const cardTenderId = card.id.replace('tender-bidder-', '');
+                        if (!snapshotTenderIds.has(cardTenderId)) {
+                            console.log("loadActiveTendersForBidder: Removing card no longer in snapshot:", cardTenderId);
+                            card.remove();
+                        }
+                    });
+
+                    if (snapshot.empty && container.querySelectorAll('.tender-card').length === 0) {
+                        container.innerHTML = `<div class="alert alert-error" style="text-align: center;"><h3>📋 No Active Tenders</h3><p>No tenders available for bidding.</p></div>`;
+                        return;
+                    }
+                    
+                    let tendersActuallyProcessed = 0;
+                    snapshot.forEach((doc) => {
+                        const tender = { id: doc.id, ...doc.data() };
+                        try {
+                           renderTenderCardForBidder(tender, container); // This will create or update
+                           tendersActuallyProcessed++;
+                        } catch (e) {
+                           console.error("Error in onSnapshot during renderTenderCardForBidder for", tender.id, e);
+                        }
+                    });
+
+                    // If after processing, no cards are visible (e.g. all were client-side expired on initial render)
+                    if (container.querySelectorAll('.tender-card').length === 0) {
+                        if (snapshot.empty) { // Should have been caught above, but as a fallback
+                            container.innerHTML = `<div class="alert alert-error" style="text-align: center;"><h3>📋 No Active Tenders</h3><p>No tenders available for bidding.</p></div>`;
+                        } else { // Snapshot had items, but none were rendered as "active looking" by renderTenderCardForBidder
+                            container.innerHTML = `<div class="alert alert-error" style="text-align: center;"><h3>📋 No Displayable Tenders</h3><p>No tenders currently meet the active criteria or all have expired.</p></div>`;
+                        }
+                    }
+
+                    // Setup or reset the global countdown interval
+                    if (container.querySelectorAll('.tender-card').length > 0) {
+                        if (window.globalCountdownInterval) clearInterval(window.globalCountdownInterval); // Clear old one if exists
+
+                        window.globalCountdownInterval = setInterval(() => {
+                            console.log("--- Interval Check ---"); 
+                            document.querySelectorAll('#activeTendersContainer .tender-card .countdown').forEach(el => {
+                                const tenderCardElement = el.closest('.tender-card');
+                                if (tenderCardElement && el.dataset.deadline) {
+                                    const isStillActive = updateCountdown(el, el.dataset.deadline); // This updates the text
+
+                                    if (!isStillActive) {
+                                        console.log("TENDER EXPIRED IN INTERVAL:", tenderCardElement.id);
+                                        const bidFormContainer = tenderCardElement.querySelector('.bid-form-container');
+                                        console.log("Found bidFormContainer for interval update:", bidFormContainer);
+                                        
+                                        if (bidFormContainer) {
+                                            // If it's expired, forcefully set the expired message.
+                                            // No need to check if it's already there; just ensure it IS there.
+                                            // This also means if renderTenderCardForBidder somehow put the form back,
+                                            // the interval will correct it.
+                                            console.log("UPDATING bidFormContainer innerHTML via INTERVAL for tender:", tenderCardElement.id);
+                                            bidFormContainer.innerHTML = `
+                                                <div class="alert alert-error expired-message" style="text-align:center; position: static; transform: none; box-shadow: none; border: 1px solid #f5c6cb; margin-top: 0;">
+                                                    ⏰ Bidding has ended for this tender
+                                                </div>
+                                            `;
+                                        }
+                                    }
+                                }
+                            });
+                        }, 10000); // Check every 10 seconds
+                    } else {
+                         if (window.globalCountdownInterval) {
+                            clearInterval(window.globalCountdownInterval);
+                            window.globalCountdownInterval = null;
+                        }
+                    }
+                }, (error) => {
+                    console.error("Error loading active tenders (onSnapshot error): ", error);
+                    showAlert('error', 'Could not load active tenders. ' + error.message);
+                    const loadingDiv = container.querySelector('.loading');
+                    if (loadingDiv) loadingDiv.remove();
+                    container.innerHTML = `<div class="alert alert-error">Error loading tenders. Please try again.</div>`;
+                });
+            
+            activeListeners.push(unsubscribe);
+        }
+
+        function renderTenderCardForBidder(tender, parentContainer) {
+            const tenderId = tender.id;
+            let tenderCard = document.getElementById(`tender-bidder-${tenderId}`);
+            
+            // Calculate expiry based on the NEW data coming from the snapshot
+            const deadlineDate = tender.deadline.toDate ? tender.deadline.toDate() : new Date(tender.deadline);
+            const isExpiredBasedOnNewData = deadlineDate < new Date(); 
+
+            console.log(`renderTenderCardForBidder for ${tender.id}: Deadline from data: ${deadlineDate.toISOString()}, isExpiredBasedOnNewData: ${isExpiredBasedOnNewData}`);
+
+            if (!tenderCard) {
+                tenderCard = document.createElement('div');
+                tenderCard.className = 'tender-card';
+                tenderCard.id = `tender-bidder-${tenderId}`;
+                parentContainer.appendChild(tenderCard); 
+                console.log("renderTenderCardForBidder: CREATING NEW card for tender ID:", tenderId);
+                // For a new card, always use its own data to determine expiry status
+                buildCardInnerHTML(tenderCard, tender, deadlineDate, isExpiredBasedOnNewData);
+            } else {
+                console.log("renderTenderCardForBidder: UPDATING EXISTING card for tender ID:", tenderId);
+                // Card already exists.
+                // If the new data clearly indicates the tender is NOT expired,
+                // then we should show the form, regardless of what the interval might have previously done based on an OLD deadline.
+                if (!isExpiredBasedOnNewData) {
+                    console.log(`renderTenderCardForBidder for ${tender.id}: New data indicates ACTIVE. Building with form.`);
+                    buildCardInnerHTML(tenderCard, tender, deadlineDate, false); // forceExpiredView = false
+                } else {
+                    // The new data itself says it's expired.
+                    console.log(`renderTenderCardForBidder for ${tender.id}: New data indicates EXPIRED. Building with expired message.`);
+                    buildCardInnerHTML(tenderCard, tender, deadlineDate, true); // forceExpiredView = true
+                }
+            }
+            
+            const countdownEl = tenderCard.querySelector('.countdown');
+            if (countdownEl) {
+                // Crucially, update the data-deadline attribute for the interval to pick up
+                countdownEl.dataset.deadline = deadlineDate.toISOString(); 
+                updateCountdown(countdownEl, deadlineDate.toISOString()); 
+            }
+            
+            listenToBidsForTender(tenderId);
+            return tenderCard;
+        }
+
+        // Helper function to build/rebuild the card's innerHTML
+        function buildCardInnerHTML(tenderCardElement, tenderData, deadlineDateObj, showAsExpired) {
+            const tenderId = tenderData.id;
+            console.log(`buildCardInnerHTML for ${tenderId}: showAsExpired = ${showAsExpired}`);
+
+            let bidFormOrExpiredMessageHTML = '';
+            if (!showAsExpired) { // Use the passed-in flag
+                console.log(`buildCardInnerHTML for ${tenderId}: Rendering FORM`);
+                bidFormOrExpiredMessageHTML = `
+                    <div class="bid-form-container" style="margin-top: 20px; padding: 20px; background: white; border-radius: 8px;">
+                        <h4>Submit Your Bid</h4>
+                        <form onsubmit="submitNewBid(event, '${tenderId}')">
+                             <div class="grid">
+                                <div>
+                                    <div class="form-group">
+                                        <label>Company Name *</label>
+                                        <input type="text" name="companyName" required placeholder="Your company name" value="${currentUserData ? (currentUserData.name || '') : ''}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Contact Person *</label>
+                                        <input type="text" name="contactPerson" required placeholder="Your name" value="${currentUserData ? (currentUserData.name || '') : ''}">
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-group">
+                                        <label>Contact Details *</label>
+                                        <input type="text" name="contactDetails" required placeholder="Phone/Email" value="${currentUserData ? (currentUserData.email || '') : ''}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Bid Amount (₹) *</label>
+                                        <input type="number" name="bidAmount" required placeholder="Your quotation" min="1">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn">💰 Submit Bid</button>
+                        </form>
+                    </div>
+                `;
+            } else {
+                 console.log(`buildCardInnerHTML for ${tenderId}: Rendering EXPIRED MESSAGE`);
+                bidFormOrExpiredMessageHTML = `
+                    <div class="bid-form-container" style="margin-top: 20px;">
+                        <div class="alert alert-error expired-message" style="text-align:center; position: static; transform: none; box-shadow: none; border: 1px solid #f5c6cb; margin-top: 0;">
+                            ⏰ Bidding has ended for this tender
+                        </div>
+                    </div>
+                `;
+            }
+
+            tenderCardElement.innerHTML = `
+                <div class="tender-title">${tenderData.title}</div>
+                <div class="tender-details">
+                    <strong>Category:</strong> ${tenderData.category  || 'N/A'} | 
+                    <strong>Value:</strong> ₹${tenderData.estimatedValue ? parseInt(tenderData.estimatedValue).toLocaleString() : 'N/A'}
+                </div>
+                <div class="tender-details">
+                    <strong>Deadline:</strong> <span class="countdown" data-deadline="${deadlineDateObj.toISOString()}"></span>
+                </div>
+                <div class="tender-details">${tenderData.description || 'No description.'}</div>
+                <div class="tender-details"><strong>Contact:</strong> ${tenderData.contactDetails || 'N/A'}</div>
+                
+                ${bidFormOrExpiredMessageHTML}
+                
+                <div class="bids-section">
+                    <h4>Current Bids (<span id="bidCount-${tenderId}">0</span>)</h4>
+                    <div id="bidsList-${tenderId}">
+                        <p style="text-align: center; color: #666; padding: 10px;">Loading bids...</p>
+                    </div>
+                </div>
+            `;
+             console.log(`buildCardInnerHTML for ${tenderId}: innerHTML has been set. Bid form container content:`, bidFormOrExpiredMessageHTML.includes('form onsubmit') ? "FORM" : "EXPIRED MSG");
+        }
+
+        function listenToBidsForTender(tenderId) {
+            const bidsListContainer = document.getElementById(`bidsList-${tenderId}`);
+            const bidCountEl = document.getElementById(`bidCount-${tenderId}`);
+
+            const unsubscribe = db.collection('bids')
+                .where('tenderId', '==', tenderId)
+                .orderBy('submittedAt', 'asc')
+                .onSnapshot((snapshot) => {
+                    if (!bidsListContainer || !bidCountEl) return; 
+
+                    bidsListContainer.innerHTML = '';
+                    bidCountEl.textContent = snapshot.size;
+
+                    if (snapshot.empty) {
+                        bidsListContainer.innerHTML = `<p style="text-align: center; color: #666; padding: 10px;">No bids submitted yet. Be the first!</p>`;
+                        return;
+                    }
+                    
+                    // CORRECTED ITERATION:
+                    snapshot.docs.forEach((doc, index) => { // Iterate over the .docs array
+                        console.log(`Processing bid doc, index: ${index}, tenderId: ${tenderId}, docId: ${doc.id}`); 
+                        const bid = doc.data();
+                        const bidItem = document.createElement('div');
+                        bidItem.className = 'bid-item';
+                        bidItem.innerHTML = `
+                            <span class="dealer-name">Dealer ${index + 1}</span> 
+                            <span class="bid-amount">₹${parseInt(bid.amount).toLocaleString()}</span>
+                        `;
+                        bidsListContainer.appendChild(bidItem);
+                    });
+                }, (error) => {
+                    console.error(`Error listening to bids for tender ${tenderId}:`, error);
+                    if (bidsListContainer) bidsListContainer.innerHTML = `<p style="color:red;">Error loading bids.</p>`;
+                });
+            
+            activeListeners.push(unsubscribe);
+        }
+        
+        async function submitNewBid(event, tenderId) {
+            event.preventDefault();
+            if (!currentFirebaseUser || !currentUserData || currentUserData.userType !== 'bidder') {
+                showAlert('error', 'You are not authorized to submit bids or not logged in as a bidder.');
+                return;
+            }
+
+            const form = event.target;
+            const companyName = form.companyName.value.trim();
+            const contactPerson = form.contactPerson.value.trim();
+            const contactDetails = form.contactDetails.value.trim();
+            const amount = parseFloat(form.bidAmount.value);
+
+            try {
+                if (!companyName || !contactPerson || !contactDetails || isNaN(amount) || amount <= 0) {
+                    throw new Error('Please fill all required fields with valid data.');
+                }
+
+                // Check if tender is still active (deadline check)
+                const tenderDoc = await db.collection('tenders').doc(tenderId).get();
+                if (!tenderDoc.exists) {
+                    showAlert('error', 'Tender not found.'); // Show alert and exit
+                    return;
+                }
+
+                const tenderData = tenderDoc.data();
+                const deadline = tenderData.deadline.toDate ? tenderData.deadline.toDate() : new Date(tenderData.deadline);
+                if (new Date() > deadline) {
+                    console.warn(`Attempted to bid on expired tender: ${tenderId}`);
+                    throw new Error('Bidding deadline has passed for this tender.');
+                }
+
+                const existingBidsQuery = await db.collection('bids')
+                    .where('tenderId', '==', tenderId)
+                    .where('bidderId', '==', currentFirebaseUser.uid)
+                    .limit(1) // We only need to know if at least one exists
+                    .get();
+
+                if (!existingBidsQuery.empty) {
+                    showAlert('error', 'You have already submitted a bid for this tender. You can only bid once per tender.');
+                    return; // Exit if a bid already exists
+                }
+
+                const bidData = {
+                    tenderId: tenderId,
+                    bidderId: currentFirebaseUser.uid,
+                    bidderName: currentUserData.name, // From user profile
+                    bidderEmail: currentUserData.email, // From user profile
+                    companyName: companyName,
+                    contactPerson: contactPerson,
+                    contactDetails: contactDetails,
+                    amount: amount,
+                    submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection('bids').add(bidData);
+                showAlert('success', 'Bid submitted successfully!');
+                form.reset();
+                // Optionally pre-fill with user data again after reset if desired
+                form.companyName.value = currentUserData.name || '';
+                form.contactPerson.value = currentUserData.name || '';
+                form.contactDetails.value = currentUserData.email || '';
+
+            } catch (error) {
+                if (!error.message.includes('already submitted a bid') && 
+                    !error.message.includes('Bidding deadline has passed') &&
+                    !error.message.includes('Tender not found')) {
+                    showAlert('error', 'Error submitting bid: ' + error.message);
+                }
+                console.error("Error in submitNewBid:", error);
+            }
+        }
+
+        async function openEditTenderModal(tenderId) {
+            if (!currentUserData || currentUserData.userType !== 'admin') return;
+            try {
+                const tenderDoc = await db.collection('tenders').doc(tenderId).get();
+                if (!tenderDoc.exists) {
+                    showAlert('error', 'Tender not found for editing.');
+                    return;
+                }
+                const tender = tenderDoc.data();
+
+                document.getElementById('editTenderId').value = tenderId;
+                document.getElementById('editTenderTitle').value = tender.title;
+                document.getElementById('editTenderDescription').value = tender.description;
+                
+                // Convert Firestore timestamp or string date to datetime-local format
+                let deadlineForInput;
+                if (tender.deadline.toDate) { // It's a Firestore Timestamp
+                    const d = tender.deadline.toDate();
+                    // Adjust for timezone offset to display correctly in local time input
+                    const timezoneOffset = d.getTimezoneOffset() * 60000; //offset in milliseconds
+                    deadlineForInput = new Date(d.getTime() - timezoneOffset).toISOString().slice(0,16);
+                } else { // It's likely already a string from a previous save or initial data
+                    deadlineForInput = tender.deadline;
+                }
+                document.getElementById('editTenderDeadline').min = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,16); // Set min for today
+                document.getElementById('editTenderDeadline').value = deadlineForInput;
+
+
+                document.getElementById('editTenderCategory').value = tender.category;
+                document.getElementById('editEstimatedValue').value = tender.estimatedValue || '';
+                document.getElementById('editContactDetails').value = tender.contactDetails;
+
+                document.getElementById('editTenderModal').classList.remove('hidden');
+                document.getElementById('modalBackdrop').classList.remove('hidden');
+            } catch (error) {
+                showAlert('error', 'Error loading tender for edit: ' + error.message);
+                console.error("Error in openEditTenderModal: ", error);
+            }
+        }
+
+        function closeEditTenderModal() {
+            document.getElementById('editTenderModal').classList.add('hidden');
+            document.getElementById('modalBackdrop').classList.add('hidden');
+            document.getElementById('editTenderForm').reset();
+        }
+
+        document.getElementById('editTenderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUserData || currentUserData.userType !== 'admin') return;
+
+            const tenderId = document.getElementById('editTenderId').value;
+            const updatedData = {
+                title: document.getElementById('editTenderTitle').value.trim(),
+                description: document.getElementById('editTenderDescription').value.trim(),
+                deadline: document.getElementById('editTenderDeadline').value,
+                category: document.getElementById('editTenderCategory').value,
+                estimatedValue: document.getElementById('editEstimatedValue').value || '0',
+                contactDetails: document.getElementById('editContactDetails').value.trim(),
+            };
+
+            try {
+                if (!updatedData.title || !updatedData.description || !updatedData.deadline || !updatedData.category || !updatedData.contactDetails) {
+                    throw new Error('Please fill in all required fields marked with *');
+                }
+                if (new Date(updatedData.deadline) <= new Date() && new Date(updatedData.deadline).toDateString() !== new Date(document.getElementById('editTenderDeadline').min).toDateString()) {
+                    const originalTenderDoc = await db.collection('tenders').doc(tenderId).get();
+                    const originalDeadline = originalTenderDoc.data().deadline.toDate ? originalTenderDoc.data().deadline.toDate() : new Date(originalTenderDoc.data().deadline);
+                    if (new Date(updatedData.deadline) < originalDeadline && new Date(updatedData.deadline) < new Date()) {
+                    } else if (new Date(updatedData.deadline) < new Date() && new Date(updatedData.deadline).toDateString() !== new Date().toDateString()) {
+                    }
+                }
+
+
+                await db.collection('tenders').doc(tenderId).update(updatedData);
+                showAlert('success', 'Tender updated successfully!');
+                closeEditTenderModal();
+            } catch (error) {
+                showAlert('error', 'Error updating tender: ' + error.message);
+                console.error("Error in editTenderForm submit: ", error);
+            }
+        });
+
+        async function deleteTender(tenderId, tenderTitle) {
+            if (!currentUserData || currentUserData.userType !== 'admin') return;
+
+            if (confirm(`Are you sure you want to delete the tender "${tenderTitle}"? This will also delete all associated bids and cannot be undone.`)) {
+                try {
+                    const bidsQuerySnapshot = await db.collection('bids').where('tenderId', '==', tenderId).get();
+                    const batch = db.batch();
+                    bidsQuerySnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    await batch.commit();
+                    console.log(`Deleted ${bidsQuerySnapshot.size} bids for tender ${tenderId}`);
+
+                    await db.collection('tenders').doc(tenderId).delete();
+                    showAlert('success', `Tender "${tenderTitle}" and its bids have been deleted.`);
+                } catch (error) {
+                    showAlert('error', 'Error deleting tender: ' + error.message);
+                    console.error("Error in deleteTender: ", error);
+                }
+            }
+        }
+
+        async function closeTender(tenderId, tenderTitle) {
+            if (!currentUserData || currentUserData.userType !== 'admin') return;
+
+            if (confirm(`Are you sure you want to manually close bidding for the tender "${tenderTitle}"? This will change its status to 'closed'.`)) {
+                try {
+                    await db.collection('tenders').doc(tenderId).update({
+                        status: 'closed' 
+                    });
+                    showAlert('success', `Bidding for tender "${tenderTitle}" has been closed.`);
+                    const statusEl = document.getElementById(`status-${tenderId}`);
+                    if(statusEl) statusEl.textContent = 'closed';
+                } catch (error) {
+                    showAlert('error', 'Error closing tender: ' + error.message);
+                    console.error("Error in closeTender: ", error);
+                }
+            }
+        }
+
+        // --- Admin Functions ---
+        function loadAdminDashboardData() {
+            const container = document.getElementById('adminDataContainer');
+            container.innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading admin data...</p></div>`;
+
+            if (!currentUserData || currentUserData.userType !== 'admin') {
+                 container.innerHTML = `<div class="alert alert-error">Access Denied. Admin privileges required.</div>`;
+                 return;
+            }
+
+            const unsubscribeTenders = db.collection('tenders')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(async (tenderSnapshot) => {
+                    container.innerHTML = ''; 
+                    if (tenderSnapshot.empty) {
+                        container.innerHTML = `<div class="alert alert-info">No tenders found in the system.</div>`;
+                        return;
+                    }
+
+                    for (const tenderDoc of tenderSnapshot.docs) {
+                        const tender = { id: tenderDoc.id, ...tenderDoc.data() };
+                        const tenderSection = document.createElement('div');
+                        tenderSection.className = 'tender-card'; 
+                        tenderSection.innerHTML = `
+                        <div class="tender-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>${tender.title} (ID: ${tender.id})</span>
+                            <div>
+                                <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;" onclick="openEditTenderModal('${tender.id}')">Edit</button>
+                                <button class="btn btn-secondary" style="background: #e74c3c; padding: 5px 10px; font-size: 12px; margin-right: 5px;" onclick="deleteTender('${tender.id}', '${tender.title}')">Delete</button>
+                                ${tender.status === 'active' ? 
+                                    `<button class="btn btn-secondary" style="background: #f39c12; padding: 5px 10px; font-size: 12px;" onclick="closeTender('${tender.id}', '${tender.title}')">Close Bidding</button>` :
+                                    (tender.status === 'closed' ? `<span class="status-badge status-expired" style="background: #bdc3c7; color: #2c3e50;">Manually Closed</span>` : `<span class="status-badge status-expired">Expired</span>`)
+                                }
+                            </div>
+                        </div>
+                        <div class="tender-details">
+                            <strong>Owner:</strong> ${tender.ownerName || tender.ownerEmail} | 
+                            <strong>Created:</strong> ${formatFirebaseTimestamp(tender.createdAt)} |
+                            <strong>Deadline:</strong> ${formatFirebaseTimestamp(tender.deadline)} |
+                            <strong>Status:</strong> <span id="status-${tender.id}" style="font-weight:bold;">${tender.status}</span>
+                        </div>
+                        <div id="admin-bids-table-${tender.id}">Loading bids...</div>
+                        `;
+                        container.appendChild(tenderSection);
+                        loadBidsForAdminTender(tender.id);
+                    }
+                }, (error) => {
+                    console.error("Error loading tenders for admin: ", error);
+                    showAlert('error', 'Could not load tenders for admin.');
+                    container.innerHTML = `<div class="alert alert-error">Error loading admin data.</div>`;
+                });
+            
+            activeListeners.push(unsubscribeTenders);
+        }
+
+        function loadBidsForAdminTender(tenderId) {
+            const bidsTableContainer = document.getElementById(`admin-bids-table-${tenderId}`);
+            if (!bidsTableContainer) return;
+
+            const unsubscribeBids = db.collection('bids')
+                .where('tenderId', '==', tenderId)
+                .orderBy('submittedAt', 'asc')
+                .onSnapshot((bidsSnapshot) => {
+                    let tableHTML = `
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Company Name</th>
+                                    <th>Contact Person</th>
+                                    <th>Bidder Email</th>
+                                    <th>Bid Amount (₹)</th>
+                                    <th>Submitted At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    if (bidsSnapshot.empty) {
+                        tableHTML += `<tr><td colspan="6" style="text-align:center;">No bids received for this tender yet.</td></tr>`;
+                    } else {
+                        bidsSnapshot.docs.forEach((bidDoc, index) => {
+                            const bid = bidDoc.data();
+                            tableHTML += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${bid.companyName}</td>
+                                    <td>${bid.contactPerson}</td>
+                                    <td>${bid.bidderEmail} (${bid.bidderName || 'N/A'})</td>
+                                    <td><strong>₹${parseInt(bid.amount).toLocaleString()}</strong></td>
+                                    <td>${formatFirebaseTimestamp(bid.submittedAt)}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    tableHTML += `</tbody></table>`;
+                    bidsTableContainer.innerHTML = tableHTML;
+                }, (error) => {
+                    console.error(`Error loading bids for admin (tender ${tenderId}):`, error);
+                    if(bidsTableContainer) bidsTableContainer.innerHTML = `<p style="color:red;">Error loading bids.</p>`;
+                });
+            
+            activeListeners.push(unsubscribeBids);
+        }
+
+    </script>
+</body>
+</html>
