@@ -792,6 +792,12 @@
             }
             
             try {
+                const deadlineString = document.getElementById('tenderDeadline').value; // Get as string
+                if (!deadlineString) { // Basic check if deadline is empty
+                    throw new Error('Bidding Deadline is required.');
+                }
+                const deadlineTimestamp = firebase.firestore.Timestamp.fromDate(new Date(deadlineString)); // Convert to Timestamp
+
                 const tenderData = {
                     title: document.getElementById('tenderTitle').value.trim(),
                     description: document.getElementById('tenderDescription').value.trim(),
@@ -806,11 +812,11 @@
                     status: 'active' // 'active', 'expired', 'closed'
                 };
                 
-                if (!tenderData.title || !tenderData.description || !tenderData.deadline || !tenderData.category || !tenderData.contactDetails) {
+                if (!tenderData.title || !tenderData.description || !tenderData.category || !tenderData.contactDetails) {
                     throw new Error('Please fill in all required fields marked with *');
                 }
                 
-                if (new Date(tenderData.deadline) <= new Date()) {
+                if (deadlineTimestamp.toDate() <= new Date()) { 
                     throw new Error('Deadline must be in the future');
                 }
                 
@@ -821,6 +827,7 @@
                 
             } catch (error) {
                 showAlert('error', 'Error creating tender: ' + error.message);
+                console.error("Error details creating tender:", error); // Log the full error
             }
         });
 
